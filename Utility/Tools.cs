@@ -23,7 +23,7 @@ namespace Utility
                 if (data != null && !string.IsNullOrEmpty(data.ToString()))
                 {
                     Conversion<string> _convertToString = ConvertObjectToString;
-                    var ListToString = _convertToString(data.ToString()); 
+                    var ListToString = _convertToString(data.ToString());
 
                     return Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(ListToString);
                 }
@@ -48,7 +48,7 @@ namespace Utility
                 {
                     Conversion<string> _convertToString = ConvertObjectToString;
                     var DatatableToString = _convertToString(data.ToString());
-                    
+
                     return Newtonsoft.Json.JsonConvert.DeserializeObject<object>(DatatableToString);
                 }
             }
@@ -70,7 +70,7 @@ namespace Utility
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    return Newtonsoft.Json.JsonConvert.SerializeObject(data); 
+                    return Newtonsoft.Json.JsonConvert.SerializeObject(data);
                 }
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace Utility
             {
                 if (!string.IsNullOrEmpty(data))
                 {
-                    return Newtonsoft.Json.JsonConvert.DeserializeObject<int>(data); 
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<int>(data);
                 }
             }
             catch (Exception ex)
@@ -120,7 +120,7 @@ namespace Utility
             {
                 Log4net.LogWriter("Tools", "Utility", "ParseOrDefault : " + ex.Message, Entities.LogType.LogMode.Error);
             }
-            return (T)Convert.ChangeType(value, typeof(T)); 
+            return (T)Convert.ChangeType(value, typeof(T));
         }
 
         /// <summary>
@@ -133,6 +133,26 @@ namespace Utility
         {
             object value = ConfigurationManager.AppSettings[settingName];
             return (T)Convert.ChangeType(value, typeof(T));
+        }
+
+        /// <summary>
+        /// Converts the datetime tick into days, hours, mins
+        /// </summary>
+        /// <param name="ticks">Datetime Ticks</param>
+        /// <returns>Days, Hours, Minutes</returns>
+        public static string TicksToTime(long ticks)
+        {
+            if (ticks == 0)
+            {
+                return null;
+            }
+
+            var time = ticks; // Time value in ticks
+            var days = Math.Floor(double.Parse((time / (24 * 60 * 60 * long.Parse("10000000"))).ToString()));
+            var hours = Math.Round(double.Parse(((time / (60 * 60 * long.Parse("10000000"))) % 24).ToString()));
+            var mins = Math.Round(double.Parse((time / (60 * long.Parse("10000000")) % 60).ToString()));
+
+            return ("days: " + days + ", hours: " + hours + ", mins: " + mins);
         }
     }
 }
