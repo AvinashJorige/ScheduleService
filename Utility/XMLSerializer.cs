@@ -56,6 +56,12 @@ namespace Utility
             return xmlDocument;
         }
 
+        /// <summary>
+        /// Converts the string xml into DataTable, String, List, DataSet, ObjectList
+        /// </summary>
+        /// <param name="Xml">String xml</param>
+        /// <param name="outputType">DataTable,String,List,DataSet,ObjectList</param>
+        /// <returns>Object</returns>
         public static object Deserialize(string Xml, OutputType outputType)
         {
             Type ObjType = null;
