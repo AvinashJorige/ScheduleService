@@ -27,6 +27,12 @@ namespace Utility
             ObjectList
         }
 
+        /// <summary>
+        /// Converts the object into xml docment
+        /// </summary>
+        /// <param name="Obj">Object</param>
+        /// <param name="inputType">DataTable, String, List, Dataset, ObjectList</param>
+        /// <returns>XML Document</returns>
         public static XmlDocument Serialize(object Obj, InputType inputType)
         {
             Type ObjType = null;
