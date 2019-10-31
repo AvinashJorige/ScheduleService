@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettingConfig.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="ClassTypeTools.cs" />
     <Compile Include="Encryptor.cs" />
     <Compile Include="Log4net.cs" />

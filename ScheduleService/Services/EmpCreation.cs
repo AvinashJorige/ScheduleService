@@ -25,9 +25,34 @@ namespace ScheduleService.Services
             }
         }
 
+
+        #region =================== PRIVATE METHODS ===================
         private void SAPEmpCreation()
         {
 
         }
+
+        /// <summary>
+        /// SAP Cost Center Updation
+        /// </summary>
+        private void SAPCostCenterUpdation()
+        {
+            long TimeTookticks = DateTime.Now.Ticks;
+            try
+            {
+                Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Started : " + Tools.TicksToTime(DateTime.Now.Ticks), Entities.LogType.LogMode.Debug);
+                                                                      
+                Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Ended : " + Tools.TicksToTime(TimeTookticks), Entities.LogType.LogMode.Debug);
+                Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Ended: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);
+
+            }
+            catch (Exception ex)
+            {
+                Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+            }
+
+        }
+
+        #endregion
     }
 }
