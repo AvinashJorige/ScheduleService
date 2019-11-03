@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Utility;
 using log4net;
 using Entities;
+using System.Data.SqlClient;
+using Service.ConnectionFactory;
 
 namespace ScheduleService.Services
 {
@@ -38,10 +40,18 @@ namespace ScheduleService.Services
         private void SAPCostCenterUpdation()
         {
             long TimeTookticks = DateTime.Now.Ticks;
+            List<string> inputCC = new List<string>();
+            var SqlConn = new ConcreteConnectionsFactory().GetConnection("IILHome");
+            SqlConn.Connection("connection");
+
             try
             {
                 Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Started : " + Tools.TicksToTime(DateTime.Now.Ticks), Entities.LogType.LogMode.Debug);
-                                                                      
+
+                inputCC.Add("CSKT");
+                inputCC.Add("KOKRS EQ '1000'");
+                inputCC.Add("KOSTL|KTEXT|LTEXT|MCTXT");
+
                 Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Ended : " + Tools.TicksToTime(TimeTookticks), Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Ended: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);
 
@@ -49,6 +59,10 @@ namespace ScheduleService.Services
             catch (Exception ex)
             {
                 Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPCostCenterUpdation || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+            }
+            finally
+            {
+                inputCC = null;
             }
 
         }

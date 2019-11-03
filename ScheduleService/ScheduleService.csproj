@@ -78,6 +78,10 @@
       <Project>{de84cb6f-2d70-4977-9ca5-1bc02ce97d03}</Project>
       <Name>Entities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Service\Service.csproj">
+      <Project>{734f70d1-f400-4229-8a1f-f3882defe369}</Project>
+      <Name>Service</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utility\Utility.csproj">
       <Project>{5c712369-8495-4835-ad6c-b13be35ce464}</Project>
       <Name>Utility</Name>

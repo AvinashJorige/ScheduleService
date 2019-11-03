@@ -46,12 +46,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionFactory\ACConnection.cs" />
+    <Compile Include="ConnectionFactory\ASConnection.cs" />
+    <Compile Include="ConnectionFactory\ConcreteConnectionsFactory.cs" />
+    <Compile Include="ConnectionFactory\ConnectionsFactory.cs" />
+    <Compile Include="ConnectionFactory\ECommConnection.cs" />
+    <Compile Include="ConnectionFactory\HomeConnection.cs" />
+    <Compile Include="ConnectionFactory\IFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SAPService.cs" />
     <Compile Include="SAPServiceManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entities\Entities.csproj">
