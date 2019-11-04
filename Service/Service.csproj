@@ -53,9 +53,12 @@
     <Compile Include="ConnectionFactory\ECommConnection.cs" />
     <Compile Include="ConnectionFactory\HomeConnection.cs" />
     <Compile Include="ConnectionFactory\IFactory.cs" />
+    <Compile Include="SAPFactory\ISAPServiceManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SAPService.cs" />
-    <Compile Include="SAPServiceManager.cs" />
+    <Compile Include="SAPFactory\SAPDatatableConnection.cs" />
+    <Compile Include="SAPFactory\SAPService.cs" />
+    <Compile Include="SAPFactory\SAPServiceConfigManager.cs" />
+    <Compile Include="SAPFactory\SAPServiceManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

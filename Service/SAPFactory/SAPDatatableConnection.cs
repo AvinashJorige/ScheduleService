@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Xml;
 using Utility;
-using Newtonsoft;
 
-namespace Service
+namespace Service.SAPFactory
 {
-    public class SAPServiceManager<T> where T : class
+    public class SAPDatatableConnection : ISAPServiceManager
     {
-         public object ConnectSAPService(List<T> input)
+        public DataTable ConnectSAPService(List<string> input)
         {
             long TimeTookticks          = DateTime.Now.Ticks;
             XmlNode xmlExceptionLocStat = null;
@@ -26,7 +25,7 @@ namespace Service
                 xDocLocStat      = XMLSerializer.Serialize(input, XMLSerializer.InputType.List);
                 xDocTableLocStat = (XmlElement)_SAPCon.GetTableData(xDocLocStat, out xmlExceptionLocStat);
 
-                List<T> SAPErrorLocStat = (List<T>)XMLSerializer.Deserialize(xmlExceptionLocStat.OuterXml, XMLSerializer.OutputType.List);
+                List<string> SAPErrorLocStat = (List<string>)XMLSerializer.Deserialize(xmlExceptionLocStat.OuterXml, XMLSerializer.OutputType.List);
 
                 if (SAPErrorLocStat != null && SAPErrorLocStat.Count > 0 && SAPErrorLocStat[0] != null && SAPErrorLocStat[0].ToString() == "1000")
                 {
