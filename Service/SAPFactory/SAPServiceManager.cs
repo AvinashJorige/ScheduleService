@@ -16,6 +16,9 @@ namespace Service.SAPFactory
             {
                 case "datatable":
                     return new SAPDatatableConnection();
+                case "dataset":
+                    return new SAPDatasetConnection();
+
                 default:
                     throw new ApplicationException(string.Format("SAP Connection '{0}' cannot be created", SAPType));
             }

@@ -5,6 +5,6 @@ namespace Service.SAPFactory
 {
     public interface ISAPServiceManager
     {
-        DataTable ConnectSAPService(List<string> input);
+        object ConnectSAPService(List<string> input, string SAPService);        
     }
 }

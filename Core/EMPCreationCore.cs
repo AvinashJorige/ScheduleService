@@ -18,5 +18,15 @@ namespace Core
         {
             new EmployeeCreation(context).UpdateCCUpd_T(strXMLVal);
         }
+
+        public void UpdateCostCenterSchedules(string strXMLVal)
+        {
+            new EmployeeCreation(context).UpdateCCUpd_T(strXMLVal);
+        }
+
+        public void Indent_InsertNewItem(string strXMLVal1, string strXMLVal2)
+        {
+            new EmployeeCreation(context).Indent_InsertNewItem(strXMLVal1, strXMLVal2);
+        }
     }
 }

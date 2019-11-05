@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Data;
+using System.IO;
 
 namespace Utility
 {
@@ -153,6 +154,33 @@ namespace Utility
             var mins = Math.Round(double.Parse((time / (60 * long.Parse("10000000")) % 60).ToString()));
 
             return ("days: " + days + ", hours: " + hours + ", mins: " + mins);
+        }
+
+        public static string ConvertDataTableToXMLString(DataTable _dtTbl)
+        {
+            if(_dtTbl != null && _dtTbl.Rows.Count > 0)
+            {
+                StringWriter sw_writer = new StringWriter();
+                _dtTbl.WriteXml(sw_writer);
+                return sw_writer.ToString();
+            }
+            return null;
+        }
+
+        public static bool IsNullDataSet(DataSet _dsSet)
+        {
+            bool bflag = false;
+            if(_dsSet != null)
+            {
+                for (int i = 0; i < _dsSet.Tables.Count ; i++)
+                {
+                    if(_dsSet.Tables[i] != null && _dsSet.Tables[i].Rows.Count > 0)
+                    {
+                        bflag = true;
+                    }
+                }
+            }
+            return bflag;
         }
     }
 }

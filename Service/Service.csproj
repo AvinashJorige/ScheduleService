@@ -55,6 +55,7 @@
     <Compile Include="ConnectionFactory\IFactory.cs" />
     <Compile Include="SAPFactory\ISAPServiceManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SAPFactory\SAPDatasetConnection.cs" />
     <Compile Include="SAPFactory\SAPDatatableConnection.cs" />
     <Compile Include="SAPFactory\SAPService.cs" />
     <Compile Include="SAPFactory\SAPServiceConfigManager.cs" />

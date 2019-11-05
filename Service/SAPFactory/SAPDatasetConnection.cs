@@ -6,33 +6,33 @@ using Utility;
 
 namespace Service.SAPFactory
 {
-    public class SAPDatatableConnection : ISAPServiceManager
+    public class SAPDatasetConnection : ISAPServiceManager
     {
         /// <summary>
-        /// Connect with the SAP Service. Used for CRUD operation with SAP Service if using with the datatable
+        /// Connect with the SAP Service. Used for CRUD operation with SAP Service if using with the dataset
         /// </summary>
         /// <param name="input">Input List of string paramaters</param>
         /// <param name="SAPService">Sap service RFC name</param>
-        /// <returns>Datatable</returns>
+        /// <returns>DataSetreturns>
         public object ConnectSAPService(List<string> input, string SAPService)
         {
-            long TimeTookticks          = DateTime.Now.Ticks;
+            long TimeTookticks = DateTime.Now.Ticks;
             XmlNode xmlExceptionLocStat = null;
-            SAPService _SAPCon          = null;
+            SAPService _SAPCon = null;
             XmlElement xDocTableLocStat = null;
-            XmlDocument xDocLocStat     = null;
-            DataTable _datatable        = new DataTable();
+            XmlDocument xDocLocStat = null;
+            DataSet _dataset = new DataSet();
 
             try
             {
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Started : " + Tools.TicksToTime(DateTime.Now.Ticks), Entities.LogType.LogMode.Debug);
 
-                _SAPCon          = new SAPService(AppSettingConfig.GetConfigAppSetting("SAPWebServiceURL"));
-                xDocLocStat      = XMLSerializer.Serialize(input, XMLSerializer.InputType.List);
+                _SAPCon = new SAPService(AppSettingConfig.GetConfigAppSetting("SAPWebServiceURL"));
+                xDocLocStat = XMLSerializer.Serialize(input, XMLSerializer.InputType.List);
                 switch (SAPService)
                 {
-                    case "GetTableData":
-                        xDocTableLocStat = (XmlElement)_SAPCon.GetTableData(xDocLocStat, out xmlExceptionLocStat);
+                    case "Readmaterial":
+                        xDocTableLocStat = (XmlElement)_SAPCon.Readmaterial(xDocLocStat, out xmlExceptionLocStat);
                         break;
                 }
 
@@ -42,15 +42,15 @@ namespace Service.SAPFactory
 
                 if (SAPErrorLocStat != null && SAPErrorLocStat.Count > 0 && SAPErrorLocStat[0] != null && SAPErrorLocStat[0].ToString() == "1000")
                 {
-                    _datatable = (DataTable)XMLSerializer.Deserialize(xDocTableLocStat.OuterXml, XMLSerializer.OutputType.DataTable);
+                    _dataset = (DataSet)XMLSerializer.Deserialize(xDocTableLocStat.OuterXml, XMLSerializer.OutputType.DataTable);
                 }
 
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable : " + Newtonsoft.Json.JsonConvert.SerializeObject(_datatable), Entities.LogType.LogMode.Debug);
-                Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable End: --------------------------------" + Environment.NewLine +""+ Environment.NewLine, Entities.LogType.LogMode.Debug);
+                Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable End: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Service Ended : " + Tools.TicksToTime(TimeTookticks), Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Service Ended: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);
 
-                return _datatable;
+                return _dataset;
             }
             catch (Exception ex)
             {
@@ -58,10 +58,10 @@ namespace Service.SAPFactory
             }
             finally
             {
-                _datatable          = null;
-                _SAPCon             = null;
-                xDocLocStat         = null;
-                xDocTableLocStat    = null;
+                _dataset = null;
+                _SAPCon = null;
+                xDocLocStat = null;
+                xDocTableLocStat = null;
                 xmlExceptionLocStat = null;
             }
             return null;
