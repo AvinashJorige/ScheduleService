@@ -29,7 +29,6 @@
                 List<TEntity> items = new List<TEntity>();
                 while (record.Read())
                 {
-
                     items.Add(Map<TEntity>(record));
                 }
                 return items;

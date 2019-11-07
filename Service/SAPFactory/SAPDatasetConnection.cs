@@ -45,7 +45,7 @@ namespace Service.SAPFactory
                     _dataset = (DataSet)XMLSerializer.Deserialize(xDocTableLocStat.OuterXml, XMLSerializer.OutputType.DataTable);
                 }
 
-                Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable : " + Newtonsoft.Json.JsonConvert.SerializeObject(_datatable), Entities.LogType.LogMode.Debug);
+                Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable : " + Newtonsoft.Json.JsonConvert.SerializeObject(_dataset), Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Resultset Datatable End: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Service Ended : " + Tools.TicksToTime(TimeTookticks), Entities.LogType.LogMode.Debug);
                 Log4net.LogWriter("SAPService", "Service", "ConnectSAPService || Service Ended: --------------------------------" + Environment.NewLine + "" + Environment.NewLine, Entities.LogType.LogMode.Debug);

@@ -34,6 +34,9 @@ namespace Service.SAPFactory
                     case "GetTableData":
                         xDocTableLocStat = (XmlElement)_SAPCon.GetTableData(xDocLocStat, out xmlExceptionLocStat);
                         break;
+                    case "R3EmpCreation":
+                        xDocTableLocStat = (XmlElement)_SAPCon.R3EmpCreation(xDocLocStat, out xmlExceptionLocStat);
+                        break;
                 }
 
                 xDocTableLocStat = (XmlElement)_SAPCon.GetTableData(xDocLocStat, out xmlExceptionLocStat);

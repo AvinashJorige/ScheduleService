@@ -53,5 +53,36 @@ namespace Repository.Repositories
                 return Tools.ConvertListToDataTable(this.ToList(command).ToList());
             }
         }
+        
+        public DataTable PlntUpd_T(string CCXML)
+        {
+            using (var command = _context.CreateCommand())
+            {
+                command.CommandText = "exec [dbo].[USP_PlntUpd_T]";
+                command.Parameters.Add(new SqlParameter("@CCTable", SqlDbType.Xml));
+                command.Parameters["@CCTable"] = CCXML.ToString();
+                return Tools.ConvertListToDataTable(this.ToList(command).ToList());
+            }
+        }
+
+        public DataSet GetOrSetChangesToDB(string SPName)
+        {
+            using (var command = _context.CreateCommand())
+            {
+                command.CommandText = "exec [dbo].["+ SPName + "]";                
+                return Tools.ConvertListToDataSet(this.ToList(command).ToList());
+            }
+        }
+
+        public DataTable EmpCreation_chkEmpExists(string strEmpNo)
+        {
+            using (var command = _context.CreateCommand())
+            {
+                command.CommandText = "exec [dbo].[USP_EmpCreation_chkEmpExists]";
+                command.Parameters.Add(new SqlParameter("@EmpId", SqlDbType.VarChar));
+                command.Parameters["@EmpId"] = strEmpNo.ToString();
+                return Tools.ConvertListToDataTable(this.ToList(command).ToList());
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace Utility
             {
                 if(key != null && !string.IsNullOrEmpty(key.ToString()))
                 {
-                    strResult = ConfigurationSettings.AppSettings[key.ToString()];
+                    strResult = Tools.ConfigSetting<string>(key.ToString()); // ConfigurationSettings.AppSettings[key.ToString()];
                     return Tools.ConvertObjectToString(strResult);
                 }
             }

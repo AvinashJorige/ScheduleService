@@ -37,6 +37,30 @@ namespace Utility
         }
 
         /// <summary>
+        /// Converting List type to DataSet
+        /// </summary>
+        /// <param name="data">String value</param>
+        /// <returns>Return DataSet from List</returns>
+        public static DataSet ConvertListToDataSet(object data)
+        {
+            try
+            {
+                if (data != null && !string.IsNullOrEmpty(data.ToString()))
+                {
+                    Conversion<string> _convertToString = ConvertObjectToString;
+                    var ListToString = _convertToString(data.ToString());
+
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<DataSet>(ListToString);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log4net.LogWriter("Tools", "Utility", "ConvertListToDataSet : " + ex.Message, Entities.LogType.LogMode.Error);
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Converting Data type to List
         /// </summary>
         /// <param name="data">String value</param>
@@ -156,6 +180,11 @@ namespace Utility
             return ("days: " + days + ", hours: " + hours + ", mins: " + mins);
         }
 
+        /// <summary>
+        /// Convert the datatable into string XML
+        /// </summary>
+        /// <param name="_dtTbl">DataTable as input</param>
+        /// <returns>String XML</returns>
         public static string ConvertDataTableToXMLString(DataTable _dtTbl)
         {
             if(_dtTbl != null && _dtTbl.Rows.Count > 0)
@@ -167,6 +196,11 @@ namespace Utility
             return null;
         }
 
+        /// <summary>
+        /// Checkes the if there is any nulls in the dataset or not
+        /// </summary>
+        /// <param name="_dsSet">DataSet</param>
+        /// <returns>Bool</returns>
         public static bool IsNullDataSet(DataSet _dsSet)
         {
             bool bflag = false;
