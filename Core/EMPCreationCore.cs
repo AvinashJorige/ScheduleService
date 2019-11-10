@@ -1,4 +1,5 @@
-﻿using Repository;
+﻿using Entities;
+using Repository;
 using Repository.Repositories;
 
 namespace Core
@@ -59,6 +60,26 @@ namespace Core
         public object EmpCreation_chkEmpExists(string strEmpId)
         {
             return new EmployeeCreation(context).EmpCreation_chkEmpExists(strEmpId);
+        }
+
+        public object GetEmpTypeBasedonDesig(string Designation)
+        {
+            return new EmployeeCreation(context).GetEmpTypeBasedonDesig(Designation);
+        }
+
+        public object GetSAPPerArea(string EmpPerArea, string EmpPerSubArea)
+        {
+            return new EmployeeCreation(context).GetSAPPerArea(EmpPerArea, EmpPerSubArea);
+        }
+
+        public object GetScaleCode(string GradeCode)
+        {
+            return new EmployeeCreation(context).GetScaleCode(GradeCode);
+        }
+        
+        public void EmployeeMasterTransactions(EmpMasterTrans EMTrans)
+        {
+            new EmployeeCreation(context).EmployeeMasterTransactions(EMTrans);
         }
     }
 }

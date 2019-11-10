@@ -90,9 +90,12 @@ namespace ScheduleService.Services
                     dtService = (DataTable)SAPConnect.ConnectSAPService(inputCC, "R3EmpCreation");
 
                     _sapservice = null;
-                    SAPConnect = null;
+                    SAPConnect  = null;
+                    inputCC     = null;
+                    inputCC     = new List<string>();
 
-                    if(dtService != null && dtService.Rows.Count > 0)
+                    // New employee detail fetched from SAP will updated into the IIL Home Database
+                    if (dtService != null && dtService.Rows.Count > 0)
                     {
                         Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || R3EmpCreation || Rows : " + dtService.Rows.Count , Entities.LogType.LogMode.Debug);
                         foreach (DataRow dr in dtService.Rows)
@@ -115,7 +118,7 @@ namespace ScheduleService.Services
                             Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || chkEmpExists || Rows : " + _dtInternalServ.Rows.Count, Entities.LogType.LogMode.Debug);
                             if (_dtInternalServ != null && _dtInternalServ.Rows.Count <= 0)
                             {
-                                //Employee Sex
+                                #region ********** Employee Sex **********
                                 if (Convert.ToInt32(dr["Empsex"].ToString()) == 1)
                                 {
                                     strSex = "M";
@@ -126,7 +129,368 @@ namespace ScheduleService.Services
                                     strSex = "F";
                                     strTitle = "Miss";
                                 }
+                                #endregion ********** Employee Sex **********
 
+                                #region ********** Fetching employee father name **********
+                                try
+                                {
+                                    inputCC.Add("PA0021");
+                                    inputCC.Add("PERNR EQ " + dr["EmpNo"].ToString());
+                                    inputCC.Add("SUBTY|FANAM");
+
+                                    _sapservice = new Service.SAPFactory.SAPServiceManager();
+                                    SAPConnect = _sapservice.GetSAPService("datatable");
+                                    dtService = (DataTable)SAPConnect.ConnectSAPService(inputCC, "GetTableData");
+
+                                    _sapservice = null;
+                                    SAPConnect  = null;
+                                    inputCC     = null;
+                                    inputCC     = new List<string>();
+
+                                    if (dtService != null && dtService.Rows.Count > 0)
+                                    {
+                                        foreach (DataRow dr1 in dtService.Rows)
+                                        {
+                                            if (Convert.ToInt32(dr1["SubType"].ToString()) == 11)
+                                            {
+                                                strFather = dr1["FatherName"].ToString();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // No Details found in SAP;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| Employee Father Name from another RFC(from Table) || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                }
+                                #endregion  ********** Fetching employee father name **********
+
+                                #region ********** Employee Type based on Designation **********
+                                if (dr["Designation"] != null && !string.IsNullOrEmpty(dr["Designation"].ToString()) && Tools.ConvertToInt(dr["Designation"].ToString()) == 0)
+                                {
+                                    if (
+                                        (dr["Grade"] != null && !string.IsNullOrEmpty(dr["Grade"].ToString()))
+                                        &&
+                                        (dr["Grade"].ToString() == "O1" || dr["Grade"].ToString() == "A1" || dr["Grade"].ToString() == "A3" || dr["Grade"].ToString() == "E2" ||
+                                        dr["Grade"].ToString() == "O2" || dr["Grade"].ToString() == "A2" || dr["Grade"].ToString() == "E1" || dr["Grade"].ToString() == "E3")
+                                        )
+                                    {
+                                        strEmpType = "FT-OFF";
+                                    }
+                                    else if (dr["Grade"].ToString().Substring(0, 1).ToUpper() == "T")
+                                    {
+                                        strEmpType = "TRAINE";
+                                    }
+                                    else
+                                    {
+                                        strEmpType = "FT-MGR";
+                                    }
+                                }
+                                else
+                                {
+                                    _dsObject = null;
+                                    _dsObject = new DataSet();
+
+                                    try
+                                    {
+                                        string strDesgination = (dr["Designation"] != null && !string.IsNullOrEmpty(dr["Designation"].ToString())) ? dr["Designation"].ToString() : string.Empty;
+
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || Checking whether Employee already exists in the legacy || Started", Entities.LogType.LogMode.Debug);
+                                        _dsObject = (DataSet)_empCreation.GetEmpTypeBasedonDesig(strDesgination);
+                                        _dsObject.Tables[0].TableName = "getEmpTypeBasedonDesig";
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || Checking whether Employee already exists in the legacy || Ended : " + DateTime.Now.TimeOfDay, Entities.LogType.LogMode.Debug);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| Checking whether Employee already exists in the legacy || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                    }
+
+                                    if (_dsObject.Tables["getEmpTypeBasedonDesig"] != null && _dsObject.Tables["getEmpTypeBasedonDesig"].Rows.Count > 0)
+                                    {
+                                        strEmpType = _dsObject.Tables["getEmpTypeBasedonDesig"].Rows[0]["sapdesc"].ToString();
+                                    }
+                                    else
+                                    {
+
+                                        if (
+                                            (dr["Grade"] != null && !string.IsNullOrEmpty(dr["Grade"].ToString()))
+                                            &&
+                                            (dr["Grade"].ToString() == "O1" || dr["Grade"].ToString() == "A1" || dr["Grade"].ToString() == "A3" || dr["Grade"].ToString() == "E2" ||
+                                            dr["Grade"].ToString() == "O2" || dr["Grade"].ToString() == "A2" || dr["Grade"].ToString() == "E1" || dr["Grade"].ToString() == "E3")
+                                            )
+                                        {
+                                            strEmpType = "FT-OFF";
+                                        }
+                                        else if (dr["Grade"].ToString().Substring(0, 1).ToUpper() == "T")
+                                        {
+                                            strEmpType = "TRAINE";
+                                        }
+                                        else
+                                        {
+                                            strEmpType = "FT-MGR";
+                                        }
+                                    }
+                                }
+                                #endregion ********** Employee Type based on Designation **********
+
+                                #region ********** Employee Marital Status **********
+                                if (dr["Marstatus"] != null && dr["Marstatus"].ToString() == "1")
+                                {
+                                    strMaritalStatus = "M";
+                                }
+                                else
+                                {
+                                    strMaritalStatus = "N";
+                                }
+                                #endregion ********** Employee Marital Status **********
+
+                                #region ********** Date of Birth **********
+                                string strTempDbMon = (dr["Dateofbirth"] != null && !string.IsNullOrEmpty(dr["Dateofbirth"].ToString())) ? dr["Dateofbirth"].ToString().Substring(5, 2) : string.Empty;
+                                string strTempDbDay = (dr["Dateofbirth"] != null && !string.IsNullOrEmpty(dr["Dateofbirth"].ToString())) ? dr["Dateofbirth"].ToString().Substring(8, 2) : string.Empty;
+
+                                if (strTempDbMon.Length == 1)
+                                {
+                                    strTempDbMon = "0" + strTempDbMon;
+                                }
+                                if (strTempDbDay.Length == 1)
+                                {
+                                    strTempDbDay = "0" + strTempDbDay;
+                                }
+
+                                strDob = (dr["Dateofbirth"] != null && !string.IsNullOrEmpty(dr["Dateofbirth"].ToString())) ? dr["Dateofbirth"].ToString().Substring(0, 4) + "-" + strTempDbMon + "-" + strTempDbDay : string.Empty;
+                                #endregion ********** Date of Birth **********
+                                                                
+                                #region ********** Date of Joining **********
+                                string strTempDjMon = (dr["Dateofjoining"] != null && !string.IsNullOrEmpty(dr["Dateofjoining"].ToString())) ? dr["Dateofjoining"].ToString().Substring(5, 2) : string.Empty;
+                                string strTempDjDay = (dr["Dateofjoining"] != null && !string.IsNullOrEmpty(dr["Dateofjoining"].ToString())) ? dr["Dateofjoining"].ToString().Substring(8, 2) : string.Empty;
+
+                                if (strTempDjMon.Length == 1)
+                                {
+                                    strTempDjMon = "0" + strTempDjMon;
+                                }
+                                if (strTempDjDay.Length == 1)
+                                {
+                                    strTempDjDay = "0" + strTempDjDay;
+                                }
+                                strDoj = (dr["Dateofjoining"] != null && !string.IsNullOrEmpty(dr["Dateofjoining"].ToString())) ? dr["Dateofjoining"].ToString().Substring(0, 4) + "-" + strTempDjMon + "-" + strTempDjDay : string.Empty;
+                                #endregion ********** Date of Joining **********
+
+                                #region ********** Date of Confimation **********
+                                if (dr["empsubgroup"] != null && !string.IsNullOrEmpty(dr["empsubgroup"].ToString()) && dr["empsubgroup"].ToString().ToUpper() == "T")
+                                {
+                                    strDoc = "";
+                                }
+                                else
+                                {
+                                    strDoc = strDoj;
+                                }
+                                #endregion ********** Date of Confimation **********
+
+                                #region ********** Employee Quarters **********
+                                if (dr["EmpQuarters"] != null && !string.IsNullOrEmpty(dr["EmpQuarters"].ToString()) && dr["EmpQuarters"].ToString().ToUpper() == "X")
+                                {
+                                    strQuarters = "1";
+                                }
+                                else
+                                {
+                                    strQuarters = "0";
+                                }
+
+                                try
+                                {
+                                    inputCC.Add("PA0021");
+                                    inputCC.Add("PERNR EQ " + dr["EmpNo"].ToString());
+                                    inputCC.Add("SUBTY|FANAM");
+
+                                    _sapservice = new Service.SAPFactory.SAPServiceManager();
+                                    SAPConnect = _sapservice.GetSAPService("datatable");
+                                    dtService = (DataTable)SAPConnect.ConnectSAPService(inputCC, "GetTableData");
+
+                                    _sapservice = null;
+                                    SAPConnect = null;
+                                    inputCC = null;
+                                    inputCC = new List<string>();
+
+                                    if (dtService != null && dtService.Rows.Count > 0)
+                                    {
+                                        foreach (DataRow dr2 in dtService.Rows)
+                                        {
+                                            if (dr2["Bankmode"] != null && !string.IsNullOrEmpty(dr2["Bankmode"].ToString()) && dr2["Bankmode"].ToString().ToUpper() == "CHEQUE")
+                                            {
+                                                strBankMode = "CHQ";
+                                            }
+                                            else if (dr2["Bankmode"] != null && !string.IsNullOrEmpty(dr2["Bankmode"].ToString()) && dr2["Bankmode"].ToString().ToUpper() == "DD")
+                                            {
+                                                strBankMode = "DD";
+                                            }
+                                            else
+                                            {
+                                                strBankMode = "BANK";
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //no details found in sap
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| Employee Bank Mode from another RFC(from Table) || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                }
+
+                                //AddressDetails
+                                strEmpName  = Tools.IsNull(dr["Empname"])  ? dr["Empname"].ToString().Replace("'", "")  : string.Empty;
+                                strAddress1 = Tools.IsNull(dr["Address1"]) ? dr["Address1"].ToString().Replace("'", "") : string.Empty;
+                                strAddress2 = Tools.IsNull(dr["Address2"]) ? dr["Address2"].ToString().Replace("'", "") : string.Empty;
+                                strAddress3 = Tools.IsNull(dr["Address3"]) ? dr["Address3"].ToString().Replace("'", "") : string.Empty;
+                                strPostal   = Tools.IsNull(dr["Postal"])   ? dr["Postal"].ToString().Replace("'", "")   : string.Empty;
+
+                                //Employee Location
+                                if ((Tools.IsNull(dr["EmpPerArea"])) && ((dr["EmpPerArea"].ToString() == "3000") && (dr["EmpPayArea"].ToString() == "IG" || dr["EmpPayArea"].ToString() == "IC")))
+                                {
+                                    strEmpLocation = "102";
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && ((dr["EmpPerArea"].ToString() == "3000") && (dr["EmpPayArea"].ToString() != "IG" || dr["EmpPayArea"].ToString() != "IC")))
+                                {
+                                    strEmpLocation = dr["EmpSaploc"].ToString().Replace("'", "");
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && ((dr["EmpPerArea"].ToString() == "4000") && (dr["EmpPayArea"].ToString() == "IG" || dr["EmpPayArea"].ToString() == "IC")))
+                                {
+                                    strEmpLocation = "101";
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && ((dr["EmpPerArea"].ToString() == "4000") && (dr["EmpPayArea"].ToString() != "IG" || dr["EmpPayArea"].ToString() != "IC")))
+                                {
+                                    strEmpLocation = dr["EmpSaploc"].ToString().Replace("'", "");
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && (dr["EmpPerArea"].ToString() == "5000" && dr["EmpSaploc"].ToString() == "IGAP"))
+                                {
+                                    strEmpLocation = "101";
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && (dr["EmpPerArea"].ToString() == "7000"))
+                                {
+                                    strEmpLocation = "104";
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && (dr["EmpPerArea"].ToString() == "5000" && dr["EmpSaploc"].ToString() != "IGAP"))
+                                {
+                                    strEmpLocation = dr["EmpSaploc"].ToString();
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && ((dr["EmpPerArea"].ToString() == "1100") && (dr["EmpPayArea"].ToString() == "IO")))
+                                {
+                                    strEmpLocation = "103";
+                                }
+                                else if ((Tools.IsNull(dr["EmpPerArea"])) && (dr["EmpPerArea"].ToString().Replace("'", "").Trim().ToUpper() == "1000"))
+                                {
+                                    //added this if from empupdation.else part(is existing) not added from empupdation
+                                    if ((Tools.IsNull(dr["EmpPerArea"])) && (dr["EmpSaploc"].ToString() == "1003" && dr["EmpPayArea"].ToString() == "IL"))
+                                    {
+                                        strEmpLocation = dr["EmpSaploc"].ToString();
+                                    }
+                                    else
+                                    {
+                                        _dsObject = null;
+                                        _dsObject = new DataSet();
+
+                                        try
+                                        {
+                                            string EmpPerArea = Tools.IsNull(dr["EmpPerArea"]) ? dr["EmpPerArea"].ToString() : string.Empty;
+                                            string EmpPerSubArea = Tools.IsNull(dr["EmpPerSubArea"]) ? dr["EmpPerSubArea"].ToString() : string.Empty;
+
+                                            Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getSAPPerArea || Started", Entities.LogType.LogMode.Debug);
+                                            _dsObject = (DataSet)_empCreation.GetSAPPerArea(EmpPerArea, EmpPerSubArea);
+                                            _dsObject.Tables[0].TableName = "getSAPPerArea";
+                                            Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getSAPPerArea || Ended : " + DateTime.Now.TimeOfDay, Entities.LogType.LogMode.Debug);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| USP_EmpCreation_getSAPPerArea || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                        }
+
+
+                                        if (_dsObject != null && _dsObject.Tables["getSAPPerArea"].Rows.Count > 0)
+                                        {
+                                            strEmpLocation = _dsObject.Tables["getSAPPerArea"].Rows[0]["Loc_Code"].ToString();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    _dsObject = null;
+                                    _dsObject = new DataSet();
+
+                                    try
+                                    {
+                                        string EmpPerArea = Tools.IsNull(dr["EmpPerArea"]) ? dr["EmpPerArea"].ToString() : string.Empty;
+                                        string EmpPerSubArea = Tools.IsNull(dr["EmpPerSubArea"]) ? dr["EmpPerSubArea"].ToString() : string.Empty;
+
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getSAPPerArea || Started", Entities.LogType.LogMode.Debug);
+                                        _dsObject = (DataSet)_empCreation.GetSAPPerArea(EmpPerArea, EmpPerSubArea);
+                                        _dsObject.Tables[0].TableName = "getSAPPerArea";
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getSAPPerArea || Ended : " + DateTime.Now.TimeOfDay, Entities.LogType.LogMode.Debug);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| USP_EmpCreation_getSAPPerArea || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                    }
+
+                                    if (_dsObject != null && _dsObject.Tables["getSAPPerArea"].Rows.Count > 0)
+                                    {
+                                        strEmpLocation = _dsObject.Tables["getSAPPerArea"].Rows[0]["Loc_Code"].ToString();
+                                    }
+                                }
+                                _dsObject = null;
+                                _dsObject = new DataSet();
+
+                                strDesig        = Tools.IsNull(dr["Designation"]) ? dr["Designation"].ToString().Replace("'", "") : string.Empty;
+                                strDepartment   = Tools.IsNull(dr["Dept"]) ? dr["Dept"].ToString().Replace("'", "").Substring(4, 4) : string.Empty;
+                                strGrade        = Tools.IsNull(dr["Grade"]) ? dr["Grade"].ToString().Replace("'", "") : string.Empty;
+
+                                try
+                                {
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getScaleCode || Started", Entities.LogType.LogMode.Debug);
+                                    _dsObject = (DataSet)_empCreation.GetScaleCode(strGrade);
+                                    _dsObject.Tables[0].TableName = "getSAPPerArea";
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EmpCreation_getScaleCode || Ended : " + DateTime.Now.TimeOfDay, Entities.LogType.LogMode.Debug);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| USP_EmpCreation_getScaleCode || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                }
+
+                                if (_dsObject.Tables["getScaleCode"].Rows.Count > 0)
+                                {
+                                    strScale = _dsObject.Tables["getScaleCode"].Rows[0]["Scl_Code"].ToString();
+                                }
+
+                                try
+                                {
+                                    EmpMasterTrans EMTrans = new EmpMasterTrans();
+                                    EMTrans.Flag = "I";
+                                    EMTrans.EmpId = strEmpNo;
+                                    EMTrans.Title = strTitle;
+
+
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EMPLOYEEMASTER_TRANSACTIONS || Started", Entities.LogType.LogMode.Debug);
+                                    _dsObject = (DataSet)_empCreation.EmployeeMasterTransactions(strGrade);
+                                    _dsObject.Tables[0].TableName = "getSAPPerArea";
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation || USP_EMPLOYEEMASTER_TRANSACTIONS || Ended : " + DateTime.Now.TimeOfDay, Entities.LogType.LogMode.Debug);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log4net.LogWriter("ScheduleService", "EmpCreation", "SAPEmpCreation|| USP_EMPLOYEEMASTER_TRANSACTIONS || Error : " + ex.Message, Entities.LogType.LogMode.Error);
+                                }
+                                #endregion
+
+                                #region ********** **********
+
+                                #endregion
+
+                                #region ********** **********
+
+                                #endregion
                             }
                         }
 

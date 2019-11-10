@@ -127,9 +127,9 @@ namespace Utility
         }
 
         /// <summary>
-        /// Converts the all the data type into any data type
-        /// Converts the string boolean into boolean
-        /// Converts the string integer into integer
+        /// Converts the all the data type into any data type.
+        /// Converts the string boolean into boolean.
+        /// Converts the string integer into integer.
         /// </summary>
         /// <typeparam name="T">Any Data type</typeparam>
         /// <param name="value">String value</param>
@@ -215,6 +215,21 @@ namespace Utility
                 }
             }
             return bflag;
+        }
+
+        /// <summary>
+        /// Check for the null values
+        /// </summary>
+        /// <param name="data">Any data type</param>
+        /// <returns>Boolean</returns>
+        public static bool IsNull(object data)
+        {
+            bool flag = false;
+            if(data != null && !string.IsNullOrEmpty(data.ToString()))
+            {
+                return flag = true;
+            }
+            return flag;
         }
     }
 }
